@@ -60,11 +60,15 @@ class InlineCalendar:
     def _create_header(self, chat_id: int) -> List[types.InlineKeyboardButton]:
         user_info = self._get_user_info(chat_id=chat_id)
 
-        buttons = [types.InlineKeyboardButton("{month} {year}".format(
-            month=user_info.month_names[user_info.current_date.month-1],
-            year=user_info.current_date.year), callback_data=InlineCalendar.CALLBACK_WRONG_CHOICE)
-                   ]
-        return buttons
+        return [
+            types.InlineKeyboardButton(
+                "{month} {year}".format(
+                    month=user_info.month_names[user_info.current_date.month - 1],
+                    year=user_info.current_date.year,
+                ),
+                callback_data=InlineCalendar.CALLBACK_WRONG_CHOICE,
+            )
+        ]
 
     def _create_bottom(self, chat_id: int) -> List[types.InlineKeyboardButton]:
         result = []
@@ -83,12 +87,10 @@ class InlineCalendar:
         return result
 
     def _create_weekdays_buttons(self, chat_id: int) -> List[types.InlineKeyboardButton]:
-        return [
-            types.InlineKeyboardButton(
+        return [types.InlineKeyboardButton(
                 self._get_user_info(chat_id).days_names[i],
                 callback_data=InlineCalendar.CALLBACK_WRONG_CHOICE
-            ) for i in range(0, 7)
-        ]
+            ) for i in range(7)]
 
     def _inc_month(self, chat_id: int):
         user_data = self._get_user_info(chat_id)
@@ -160,10 +162,13 @@ class InlineCalendar:
         kb.row(*self._create_header(chat_id))  # create header with month name and year aka "Aug 2019"
         kb.row(*self._create_weekdays_buttons(chat_id))  # create buttons with week days
 
-        f_row = []
         mrange = monthrange(user_info.current_date.year, user_info.current_date.month)
-        for i in range(mrange[0]):  # adding the days which were passed
-            f_row.append(types.InlineKeyboardButton(text=' ', callback_data=InlineCalendar.CALLBACK_WRONG_CHOICE))
+        f_row = [
+            types.InlineKeyboardButton(
+                text=' ', callback_data=InlineCalendar.CALLBACK_WRONG_CHOICE
+            )
+            for _ in range(mrange[0])
+        ]
 
         rows = [f_row]
         for i in range(1, mrange[1] + 1):  # adding active days
